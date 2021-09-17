@@ -10,6 +10,8 @@ public struct ResizableSheetContext {
 
 public struct ResizableSheet: View, Identifiable {
 
+    public static let defaultId = "default"
+
     public let id: String
 
     let config: AnyResizableSheetConfiguration
@@ -28,11 +30,22 @@ public struct ResizableSheet: View, Identifiable {
         )
     }
 
+    public init<MainView: View>(
+        id: String = Self.defaultId,
+        state: Binding<ResizableSheetState>,
+        @ViewBuilder content mainViewBuilder: @escaping (ResizableSheetContext) -> MainView
+    ) {
+        self.id = id
+        self.mainViewBuilder = { AnyView(mainViewBuilder($0)) }
+        self._state = state
+        self.config = AnyResizableSheetConfiguration(config: DefaultResizableSheetConfiguration())
+    }
+
     public init<
         MainView: View,
         Configuration: ResizableSheetConfiguration
     >(
-        id: String,
+        id: String = Self.defaultId,
         state: Binding<ResizableSheetState>,
         config: Configuration,
         @ViewBuilder content mainViewBuilder: @escaping (ResizableSheetContext) -> MainView

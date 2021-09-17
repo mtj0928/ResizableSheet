@@ -51,7 +51,7 @@ public class ResizableSheetCenter {
         sheets.append(sheet)
     }
 
-    public func remove(id: String) {
+    public func remove(id: String = ResizableSheet.defaultId) {
         sheets = sheets.filter { $0.id != id }
     }
 
