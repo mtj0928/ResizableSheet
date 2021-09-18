@@ -19,6 +19,7 @@ Only SwiftPM
 - The midium size is automatically calculated baesd on the content.
 - You can update view for each state.
 - ResizableSheet contains `TrackableScrollView`. The view is wrapper view of `UIScrollView` and the offset synchronizes with dragging of sheet.
+- ResizableSheet can be shonw on another ResizableSheet.
 
 ## Simple Example 
 To use ResizableSheet, follow these steps.
@@ -51,19 +52,15 @@ struct SomeView: View {
             state = .midium
         }
         .onAppear { 
-            resizableSheetCenter?.prepare(for: ResizableSheet(
-                id: "id",
-                state: $state,
-                config: DefaultResizableSheetConfiguration(),
-                content: { context in
-                    VStack(spacing: 0) {
-                        Text("text").padding()
-                        Spacer(minLength: 0)
-                    }
-                }))
+            resizableSheetCenter?.prepare(for: ResizableSheet(state: $state) { context in
+                VStack(spacing: 0) {
+                    Text("text").padding()
+                    Spacer(minLength: 0)
+                }
+            })
         }
         .onDisappear {
-            resizableSheetCenter?.remove(id: "id")
+            resizableSheetCenter?.remove()
         }
     }
 }
@@ -97,27 +94,22 @@ This view is configured on `init` of `ResizableSheet`.
 You can update the view based on the current status.
 
 ```swift
-resizableSheetCenter?.prepare(for: ResizableSheet(
-    id: "id",
-    state: $state,
-    config: DefaultResizableSheetConfiguration(),
-    content: { context in
-        VStack {
-            Text(context.state == .hidden ? "hidden" :
-                    context.state == .midium ? "midium" : "large"
+resizableSheetCenter?.prepare(for: ResizableSheet(state: $state) { context in
+    VStack {
+        Text(context.state == .hidden ? "hidden" :
+                context.state == .midium ? "midium" : "large"
+        )
+        Color.gray
+            .frame(height:
+                    context.state == .midium ? max(0, context.diffY) :
+                    context.state == .hidden ? 0 : nil
             )
-            Color.gray
-                .frame(height:
-                        context.state == .midium ? max(0, context.diffY) :
-                        context.state == .hidden ? 0 : nil
-                )
-                .opacity(context.state == .midium ? context.percent : 1.0 - abs(context.percent))
-                .allowsHitTesting(false)
-            Text("Buttom")
-        }
-        .padding()
-    })
-)
+            .opacity(context.state == .midium ? context.percent : 1.0 - abs(context.percent))
+            .allowsHitTesting(false)
+        Text("Buttom")
+    }
+    .padding()
+})
 ```
 
 <img src="./Doc/Resources/ContentExample.gif" width=250pt/>
