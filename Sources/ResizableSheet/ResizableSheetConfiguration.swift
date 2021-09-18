@@ -54,10 +54,11 @@ public struct AnyResizableSheetConfiguration: ResizableSheetConfiguration {
 
 public struct DefaultResizableSheetConfiguration: ResizableSheetConfiguration {
 
-    struct BackGroundView: View {
+    public struct BackgroundView: View {
         var context: ResizableSheetContext
         @Environment(\.resizableSheetModel) var resizableSheetModel
 
+        let color: Color
         let midiumOpacity = 0.4
         let fullOpacity = 0.9
         var diff: CGFloat {
@@ -72,9 +73,13 @@ public struct DefaultResizableSheetConfiguration: ResizableSheetConfiguration {
             }
         }
 
-        var body: some View {
-            Color.black
-                .opacity(opacity)
+        public init(context: ResizableSheetContext, color: Color = Color.black) {
+            self.context = context
+            self.color = color
+        }
+
+        public var body: some View {
+            color.opacity(opacity)
                 .ignoresSafeArea()
                 .onTapGesture {
                     resizableSheetModel!.updateState(.hidden)
@@ -102,7 +107,7 @@ public struct DefaultResizableSheetConfiguration: ResizableSheetConfiguration {
     }
 
     public func background(_ context: ResizableSheetContext) -> some View {
-        BackGroundView(context: context)
+        BackgroundView(context: context, color: .black)
     }
 
     public func nextState(context: ResizableSheetContext) -> ResizableSheetState {
