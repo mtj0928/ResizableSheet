@@ -2,16 +2,16 @@ import SwiftUI
 
 public class ResizableSheetModel: ObservableObject {
 
-    public private(set) var contentOffSet: CGFloat = .zero
-    public var mainSize: CGSize = .zero
-    public var midiumSize: CGSize = .zero
-    public var fullSize: CGSize = .zero
-    public var percent: CGFloat = .zero
-    public var lastState: ResizableSheetState = .hidden
+    public internal(set) var contentOffSet: CGFloat = .zero
+    public internal(set) var mainSize: CGSize = .zero
+    public internal(set) var midiumSize: CGSize = .zero
+    public internal(set) var fullSize: CGSize = .zero
+    public internal(set) var percent: CGFloat = .zero
+    public internal(set) var lastState: ResizableSheetState = .hidden
     
-    public var config: AnyResizableSheetConfiguration = AnyResizableSheetConfiguration(config: DefaultResizableSheetConfiguration())
+    public internal(set) var config: AnyResizableSheetConfiguration = AnyResizableSheetConfiguration(config: DefaultResizableSheetConfiguration())
 
-    public var updateState: (ResizableSheetState) -> () = { _ in }
+    public internal(set) var updateState: (ResizableSheetState) -> () = { _ in }
 
     private var timer: Timer?
 
