@@ -35,7 +35,7 @@ public class ScrollViewGestureHandler: NSObject, UIGestureRecognizerDelegate {
             self.startOffset = scrollView.contentOffset.y
         case .changed:
             let diff = gesture.translation(in: view)
-            if resizableSheetModel?.lastState != .large
+            if resizableSheetModel?.state != .large
                 || scrollView.contentOffset.y < 0
                 || state == .changed {
                 state = .changed

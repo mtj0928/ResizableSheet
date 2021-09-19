@@ -1,58 +1,6 @@
 import SwiftUI
 
-public protocol ResizableSheetConfiguration {
-
-    associatedtype Outside: View
-    associatedtype SheetBackground: View
-    associatedtype Background: View
-
-    var cornerRadius: CGFloat { get }
-    var supportState: [ResizableSheetState] { get }
-
-    func outside(_ context: ResizableSheetContext) -> Outside
-    func sheetBackground(_ context: ResizableSheetContext) -> SheetBackground
-    func background(_ context: ResizableSheetContext) -> Background
-    func nextState(context: ResizableSheetContext) -> ResizableSheetState
-}
-
-public struct AnyResizableSheetConfiguration: ResizableSheetConfiguration {
-
-    public let cornerRadius: CGFloat
-    public let supportState: [ResizableSheetState]
-
-    let outsideViewBuilder: (ResizableSheetContext) -> AnyView
-    let sheetBackgroundViewBuilder: (ResizableSheetContext) -> AnyView
-    let backgroundViewBuilder: (ResizableSheetContext) -> AnyView
-    let nextStateHandler: (ResizableSheetContext) -> ResizableSheetState
-
-    init<Configuration: ResizableSheetConfiguration>(config: Configuration) {
-        self.cornerRadius = config.cornerRadius
-        self.supportState = config.supportState
-
-        self.outsideViewBuilder = { AnyView(config.outside($0)) }
-        self.sheetBackgroundViewBuilder = { AnyView(config.sheetBackground($0)) }
-        self.backgroundViewBuilder = { AnyView(config.background($0)) }
-        self.nextStateHandler = { config.nextState(context: $0) }
-    }
-
-    public func outside(_ context: ResizableSheetContext) -> some View {
-        outsideViewBuilder(context)
-    }
-
-    public func sheetBackground(_ context: ResizableSheetContext) -> some View {
-        sheetBackgroundViewBuilder(context)
-    }
-
-    public func background(_ context: ResizableSheetContext) -> some View {
-        backgroundViewBuilder(context)
-    }
-
-    public func nextState(context: ResizableSheetContext) -> ResizableSheetState {
-        nextStateHandler(context)
-    }
-}
-
-public struct DefaultResizableSheetConfiguration: ResizableSheetConfiguration {
+public struct ResizableSheetConfiguration {
 
     public struct BackgroundView: View {
         var context: ResizableSheetContext
@@ -87,30 +35,38 @@ public struct DefaultResizableSheetConfiguration: ResizableSheetConfiguration {
         }
     }
 
-    public let cornerRadius: CGFloat
-    public let supportState: [ResizableSheetState]
+    public var cornerRadius: CGFloat = 40.0
+    public var supportState: [ResizableSheetState] = [.hidden, .midium, .large]
 
-    public init(
-        cornerRadius: CGFloat = 40,
-        supportState: [ResizableSheetState] = [.hidden, .midium, .large]
-    ) {
-        self.cornerRadius = cornerRadius
-        self.supportState = supportState
-    }
+    var outsideViewBuilder: (ResizableSheetContext) -> AnyView = { _ in AnyView(EmptyView()) }
+
+    var sheetBackgroundViewBuilder: (ResizableSheetContext) -> AnyView = { _ in AnyView(Color(.secondarySystemBackground)) }
+
+    var backgroundViewBuilder: (ResizableSheetContext) -> AnyView = { AnyView(BackgroundView(context: $0, color: .black)) }
+
+    var nextStateHandler: ((ResizableSheetContext) -> ResizableSheetState)?
+
+    var animation: Animation = .easeOut
+
+    public init() {}
 
     public func outside(_ context: ResizableSheetContext) -> some View {
-        EmptyView()
+        outsideViewBuilder(context)
     }
 
     public func sheetBackground(_ context: ResizableSheetContext) -> some View {
-        Color(.systemBackground)
+        sheetBackgroundViewBuilder(context)
     }
 
     public func background(_ context: ResizableSheetContext) -> some View {
-        BackgroundView(context: context, color: .black)
+        backgroundViewBuilder(context)
     }
 
     public func nextState(context: ResizableSheetContext) -> ResizableSheetState {
+        nextStateHandler?(context) ?? _nextState(context: context)
+    }
+
+    private func _nextState(context: ResizableSheetContext) -> ResizableSheetState {
         let percent = context.percent
         switch context.state {
         case .hidden:

@@ -7,25 +7,24 @@ public class ResizableSheetModel: ObservableObject {
     public internal(set) var midiumSize: CGSize = .zero
     public internal(set) var fullSize: CGSize = .zero
     public internal(set) var percent: CGFloat = .zero
-    public internal(set) var lastState: ResizableSheetState = .hidden
+    public internal(set) var state: ResizableSheetState
     
-    public internal(set) var config: AnyResizableSheetConfiguration = AnyResizableSheetConfiguration(config: DefaultResizableSheetConfiguration())
+    public internal(set) var config: ResizableSheetConfiguration = ResizableSheetConfiguration()
 
     public internal(set) var updateState: (ResizableSheetState) -> () = { _ in }
 
     private var timer: Timer?
 
-    func setFullSize(_ size: CGSize) -> CGSize {
-        if fullSize != size && !size.height.isZero && !size.width.isZero {
-            fullSize = size
-        }
-        return size
+    public init(state: ResizableSheetState) {
+        self.state = state
     }
 
-    func offset(for state: ResizableSheetState, in size: CGSize) -> CGFloat {
-        if lastState != state {
-            self.lastState = state
+    func offset(state: ResizableSheetState, in size: CGSize) -> CGFloat {
+        if self.state != state {
+            self.state = state
+            commit()
         }
+
         if fullSize != size {
             fullSize = size
         }
@@ -34,9 +33,9 @@ public class ResizableSheetModel: ObservableObject {
     }
 
     var currentAnchor: CGFloat {
-        lastState == .hidden ? fullSize.height :
-            lastState == .midium && midiumSize.height.isZero ? fullSize.height :
-            lastState == .midium ? fullSize.height - midiumSize.height :
+        state == .hidden ? fullSize.height :
+            state == .midium && midiumSize.height.isZero ? fullSize.height :
+            state == .midium ? fullSize.height - midiumSize.height :
             .zero
     }
 
@@ -46,16 +45,16 @@ public class ResizableSheetModel: ObservableObject {
             guard let self = self else { return }
             self.updateOffSet(diff: diff)
             let next = self.config.nextState(context: .init(
-                state: self.lastState,
+                state: self.state,
                 diffY: self.contentOffSet,
                 percent: self.percent,
                 mainViewSize: self.mainSize,
                 fullViewSize: self.fullSize
             ))
-            self.lastState = next
+            self.state = next
+            self.updateState(next)
             self.contentOffSet = .zero
             self.percent = 0
-            self.updateState(next)
             self.commit()
         }
     }
@@ -64,7 +63,7 @@ public class ResizableSheetModel: ObservableObject {
         var diff = diff
         let size = fullSize
 
-        switch (lastState, diff > 0) {
+        switch (state, diff > 0) {
         case (.hidden, _): break
         case (.midium, true):
             if !config.supportState.contains(.large) {
@@ -89,7 +88,7 @@ public class ResizableSheetModel: ObservableObject {
         }
 
         // update percentage
-        switch lastState {
+        switch state {
         case .large:
             if size.height == mainSize.height {
                 percent = contentOffSet / size.height

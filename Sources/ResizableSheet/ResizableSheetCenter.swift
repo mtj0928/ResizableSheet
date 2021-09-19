@@ -5,7 +5,7 @@ public class ResizableSheetCenter {
 
     private static var centers: [String: ResizableSheetCenter] = [:]
 
-    public var sheets: [ResizableSheet] = [] {
+    public private(set) var sheets: [ResizableSheetBuilder] = [] {
         didSet { update() }
     }
 
@@ -29,11 +29,11 @@ public class ResizableSheetCenter {
         previousKeyWindow?.makeKey()
     }
 
-    public func update() {
+    private func update() {
         layer.rootView = AnyView(
             ZStack {
-                ForEach(sheets) { sheet in
-                    sheet
+                ForEach(sheets) { builder in
+                    builder.build()
                 }
             }
         )
@@ -44,11 +44,11 @@ public class ResizableSheetCenter {
         }
     }
 
-    public func prepare(for sheet: ResizableSheet) {
-        if sheets.contains(where: { $0.id == sheet.id }) {
-            remove(id: sheet.id)
+    public func add(_ builder: ResizableSheetBuilder) {
+        if sheets.contains(where: { $0.id == builder.id }) {
+            remove(id: builder.id)
         }
-        sheets.append(sheet)
+        sheets.append(builder)
     }
 
     public func remove(id: String = ResizableSheet.defaultId) {
@@ -62,5 +62,18 @@ public class ResizableSheetCenter {
         let center = ResizableSheetCenter(for: windowSenece)
         centers[windowSenece.session.persistentIdentifier] = center
         return center
+    }
+}
+
+extension ResizableSheetBuilder {
+
+    func build() -> ResizableSheet {
+        ResizableSheet(
+            id: id,
+            state: state,
+            model: model,
+            config: config,
+            content: mainViewBuilder
+        )
     }
 }
