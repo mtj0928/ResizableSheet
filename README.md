@@ -40,34 +40,29 @@ struct RootView: View {
 }
 ```
 
-2. Prepare `ResizableSheet` in `onAppear` of your view, and remove the sheet in `onDisapear`. You can show and hide a sheet by updating `ResizableSheetState`.
+2. Prepare `ResizableSheetState` with `@State`, and call `resizableSheet`. 
+   You can customize the resizableSheet by chaining some methods.
 ```swift
 struct SomeView: View {
-    
-    @State var state: ResizableSheetState = .hidden
-    @Environment(\.resizableSheetCenter) var resizableSheetCenter
 
-    var body: some View { 
+    @State var state: ResizableSheetState = .hidden
+
+    var body: some View {
         Button("Show sheet") {
             state = .midium
         }
-        .onAppear { 
-            resizableSheetCenter?.prepare(for: ResizableSheet(state: $state) { context in
-                VStack(spacing: 0) {
-                    Text("text").padding()
-                    Spacer(minLength: 0)
-                }
-            })
-        }
-        .onDisappear {
-            resizableSheetCenter?.remove()
+        .resizableSheet($state) { builder in
+            builder.content { context in
+                Text("text")
+                    .padding()
+            }
         }
     }
 }
 ```
 
 That's all!  
-You can show a semi modal view by taping the button "Show sheet".
+You can show a half modal view by tapping the button "Show sheet", and you can expand or remove the sheet by dragging it.
 
 <img src="./Doc/Resources/SimpleSheet.gif" width=250pt/>
 
@@ -78,39 +73,172 @@ You can control each view components based on current status.
 
 ```
 ResizableSheet
- └─ background (ResizableSheetConfiguration)
-     ├─ outside (ResizableSheetConfiguration)
-	   └─ sheet background (ResizableSheetConfiguration)
-         └─ content (ResizableSheet)
+ └─ background
+     ├─ outside
+     └─ sheet background
+         └─ content
 ```
 
 <img src="./Doc/Resources/ViewStructure.png"/>
 
 
 
-### Content
+## Example
 
-This view is configured on `init` of `ResizableSheet`.  
+### Complex Layout
+
 You can update the view based on the current status.
+The argument `context` has some informatios about the sheet, like state, view size, progress of dragging and diffY.
+
+Based on the `context`, you can update the content.
+**Tips:** Don't forget to add `.allowsHitTesting(false)` to Color view. If you don't add it, the dragging gesture is not recognized.
 
 ```swift
-resizableSheetCenter?.prepare(for: ResizableSheet(state: $state) { context in
-    VStack {
-        Text(context.state == .hidden ? "hidden" :
-                context.state == .midium ? "midium" : "large"
-        )
-        Color.gray
-            .frame(height:
-                    context.state == .midium ? max(0, context.diffY) :
-                    context.state == .hidden ? 0 : nil
+view.resizableSheet($state) { builder in
+    builder.content { context in
+        VStack {
+            Text(context.state == .hidden ? "hidden" :
+                    context.state == .midium ? "midium" : "large"
             )
-            .opacity(context.state == .midium ? context.percent : 1.0 - abs(context.percent))
-            .allowsHitTesting(false)
-        Text("Buttom")
+            Color.gray
+                .frame(height:
+                        context.state == .midium ? max(0, context.diffY) :
+                        context.state == .hidden ? 0 : nil
+                )
+                .opacity(context.state == .midium ? context.percent : 1.0 - abs(context.percent))
+                .allowsHitTesting(false)
+            Text("Buttom")
+        }
+        .padding()
     }
-    .padding()
-})
+}
 ```
 
 <img src="./Doc/Resources/ContentExample.gif" width=250pt/>
 
+### Supported status
+
+ResizableSheet supports 3 statuses, `.hidden`, `.midium` and `.large`.
+In default setting, the all statuses are supported, but you can stop to support any statuses.
+
+```swift
+view.resizableSheet($state) { builder in
+    builder.content { context in
+        Text("Text").frame(height: 300)
+    }
+    .supportedState([.midium])
+}
+```
+
+
+
+<img src="./Doc/Resources/SupportedStatus.gif" width=250pt/>
+
+### Muti Sheets
+
+ResizableSheet supports multiple sheets.
+By adding id, ResizableSheet can show multiple sheets.
+
+```swift
+
+struct SomeSheet: View {
+
+    @State var stateA: ResizableSheetState = .hidden
+    @State var stateB: ResizableSheetState = .hidden
+
+    var body: some View {
+        Button("Show sheet A") {
+            stateA = .midium
+        }
+        .resizableSheet($stateA, id: "A") { builder in
+            builder.content { context in
+                Button("Show sheet B") {
+                    stateB = .midium
+                }.frame(height: 300)
+            }
+        }
+        .resizableSheet($stateB, id: "B") { builder in
+            builder.content { context in
+                Button("remove all sheet") {
+                    stateA = .hidden
+                    stateB = .hidden
+                }.frame(height: 200)
+            }
+        }
+    }
+}
+
+```
+
+<img src="./Doc/Resources/MultiSheets.gif" width=250pt/>
+
+
+
+### TrackableScrollView
+
+ResizableSheet includes `TrackableScrollView`.
+The view synchronises the offset with ResizableSheet.
+
+```swift
+view.resizableSheet($state) { builder in
+    builder.content { context in
+        TrackableScrollView {
+            ForEach(0..<100) { index in
+                Text("\(index)")
+                    .padding()
+            }
+        }
+        .frame(height: context.state != .large ? 300 + max(context.diffY, 0) : nil)
+    }
+}
+```
+
+<img src="./Doc/Resources/ScrollView.gif" width=250pt/>
+
+### EmptyBackground
+
+By passing EmptyView as `background`, User can control both the parent view and the sheet.
+
+```swift
+struct SomeView: View {
+    @State var counter = 0
+    @State var state: ResizableSheetState = .hidden
+    var body: some View {
+        VStack {
+            Text("\(counter)")
+                .font(.largeTitle)
+            Button("count") {
+                counter += 1
+            }
+            Spacer()
+            Button("Show sheet") {
+                state = .midium
+            }
+            Spacer()
+        }
+        .resizableSheet($state) { builder in
+            builder.content { context in
+                Content(counter: $counter).frame(height: 300)
+            }
+            .background { _ in EmptyView() } // add this line
+        }
+    }
+
+    struct Content: View {
+        @Binding var counter: Int
+        var body: some View {
+            VStack {
+                Spacer()
+                Text("\(counter)")
+                    .font(.largeTitle)
+                Button("reset") {
+                    counter = 0
+                }
+                Spacer()
+            }
+        }
+    }
+}
+```
+
+<img src="./Doc/Resources/EmptyBackground.gif" width=250pt/>

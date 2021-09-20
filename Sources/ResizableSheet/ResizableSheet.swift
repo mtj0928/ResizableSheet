@@ -13,16 +13,15 @@ public struct ResizableSheet: View, Identifiable {
     public static let defaultId = "default"
 
     public let id: String
-
-    let config: AnyResizableSheetConfiguration
+    let config: ResizableSheetConfiguration
     let mainViewBuilder: (ResizableSheetContext) -> AnyView
 
-    @StateObject var model = ResizableSheetModel()
     @Binding var state: ResizableSheetState
+    @ObservedObject var model: ResizableSheetModel
 
     var currentContext: ResizableSheetContext {
         ResizableSheetContext(
-            state: model.lastState,
+            state: state,
             diffY: model.contentOffSet,
             percent: model.percent,
             mainViewSize: model.mainSize,
@@ -33,54 +32,51 @@ public struct ResizableSheet: View, Identifiable {
     public init<MainView: View>(
         id: String = Self.defaultId,
         state: Binding<ResizableSheetState>,
+        model: ResizableSheetModel,
+        config: ResizableSheetConfiguration,
         @ViewBuilder content mainViewBuilder: @escaping (ResizableSheetContext) -> MainView
     ) {
         self.id = id
         self.mainViewBuilder = { AnyView(mainViewBuilder($0)) }
+        self.model = model
+        self.config = config
         self._state = state
-        self.config = AnyResizableSheetConfiguration(config: DefaultResizableSheetConfiguration())
+        self.model.state = state.wrappedValue
+        model.config = self.config
+
+        model.updateState = { [self] next in
+            self.state = next
+        }
     }
 
-    public init<
-        MainView: View,
-        Configuration: ResizableSheetConfiguration
-    >(
+    public init<MainView: View>(
         id: String = Self.defaultId,
         state: Binding<ResizableSheetState>,
-        config: Configuration,
+        model: ResizableSheetModel,
         @ViewBuilder content mainViewBuilder: @escaping (ResizableSheetContext) -> MainView
     ) {
-        self.id = id
-        self.mainViewBuilder = { AnyView(mainViewBuilder($0)) }
-        self._state = state
-        self.config = AnyResizableSheetConfiguration(config: config)
+        self.init(
+            id: id,
+            state: state,
+            model: model,
+            config: ResizableSheetConfiguration(),
+            content: mainViewBuilder
+        )
     }
 
     public var body: some View {
         GeometryReader { proxy in
             ZStack {
-                config.background(.init(
-                    state: state,
-                    diffY: model.contentOffSet,
-                    percent: model.percent,
-                    mainViewSize: model.mainSize,
-                    fullViewSize: model.fullSize
-                ))
-                    .frame(height: model.setFullSize(proxy.size).height)
-                    .animation(.easeOut)
+                config.background(currentContext)
+                    .frame(height: proxy.size.height)
+                    .animation(config.animation)
                     .transition(.opacity)
 
                 if model.fullSize != .zero {
                     VStack(spacing: 0) {
-                        config.outside(.init(
-                            state: state,
-                            diffY: model.contentOffSet,
-                            percent: model.percent,
-                            mainViewSize: model.mainSize,
-                            fullViewSize: model.fullSize
-                        ))
-                            .frame(height: model.offset(for: state, in: proxy.size))
-                            .animation(.easeOut)
+                        config.outside(currentContext)
+                            .frame(height: model.offset(state: state, in: proxy.size))
+                            .animation(config.animation)
                         Spacer(minLength: 0)
                     }
 
@@ -94,17 +90,12 @@ public struct ResizableSheet: View, Identifiable {
                                 .gesture(gesture)
                         )
                         .cornerRadius(config.cornerRadius, corners: [.topLeft, .topRight])
-                        .offset(y: model.offset(for: state, in: proxy.size))
-                        .transition(.move(edge: .bottom))
-                        .animation(.easeOut)
+                        .offset(y: model.offset(state: state, in: proxy.size))
+                        .animation(config.animation)
                 }
             }
             .onAppear {
-                model.config = config
-                model.lastState = state
-                model.updateState = { (nextState: ResizableSheetState) in
-                    state = nextState
-                }
+                model.fullSize = proxy.size
             }
         }
         .ignoresSafeArea(edges: .bottom)
@@ -133,7 +124,7 @@ public struct ResizableSheet: View, Identifiable {
         ChildSizeReader(updateSize: { size in
             guard !size.height.isZero else { return }
 
-            if model.contentOffSet.isZero && model.mainSize != size {
+            if model.contentOffSet.isZero {
                 model.mainSize = size
             }
 
@@ -174,10 +165,12 @@ struct ResizableSheet_Preview: PreviewProvider {
 
         @State var state = ResizableSheetState.hidden
 
+        var model: ResizableSheetModel!
         let content: (ResizableSheetContext, Binding<ResizableSheetState>) -> Content
 
         init(@ViewBuilder content: @escaping (ResizableSheetContext, Binding<ResizableSheetState>) -> Content) {
             self.content = content
+            self.model = ResizableSheetModel(state: state)
         }
 
         var body: some View {
@@ -186,6 +179,7 @@ struct ResizableSheet_Preview: PreviewProvider {
                     HStack {
                         Spacer()
                         VStack(spacing: 32) {
+                            Text("\(state.rawValue)")
                             Button("Hidden", action: {
                                 state = .hidden
                             })
@@ -200,9 +194,8 @@ struct ResizableSheet_Preview: PreviewProvider {
                         Spacer()
                     }
                     ResizableSheet(
-                        id: "id",
                         state: $state,
-                        config: DefaultResizableSheetConfiguration(),
+                        model: model,
                         content: { (context: ResizableSheetContext) in
                             content(context, $state)
                                 .frame(width: context.fullViewSize.width)
