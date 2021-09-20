@@ -29,7 +29,7 @@ public class ResizableSheetCenter {
         previousKeyWindow?.makeKey()
     }
 
-    private func update() {
+    public func update() {
         layer.rootView = AnyView(
             ZStack {
                 ForEach(sheets) { builder in
