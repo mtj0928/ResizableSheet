@@ -71,6 +71,6 @@ public class ScrollViewGestureHandler: NSObject, UIGestureRecognizerDelegate {
         _ gestureRecognizer: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
-        return true
+        gestureRecognizer.view == otherGestureRecognizer.view
     }
 }
