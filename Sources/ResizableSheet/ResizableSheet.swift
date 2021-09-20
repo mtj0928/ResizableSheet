@@ -198,15 +198,16 @@ struct ResizableSheet_Preview: PreviewProvider {
                         model: model,
                         content: { (context: ResizableSheetContext) in
                             ResizableScrollView(
+                                additionalViewHeightForMidium: 44,
                                 context: context,
                                 main: {
-                                    ForEach(0..<15) { index in
+                                    ForEach(0..<3) { index in
                                         Text("\(index)")
                                             .padding()
                                     }
                                 },
                                 additional: {
-                                    ForEach(5..<29) { index in
+                                    ForEach(5..<19) { index in
                                         Text("\(index)")
                                             .padding()
                                     }
