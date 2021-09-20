@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct ResizableSheetModelKey: EnvironmentKey {
-    static let defaultValue: ResizableSheetModel? = nil
+public struct ResizableSheetModelKey: EnvironmentKey {
+    public static let defaultValue: ResizableSheetModel? = nil
 }
 
 extension EnvironmentValues {
-    var resizableSheetModel: ResizableSheetModel? {
+    public var resizableSheetModel: ResizableSheetModel? {
         get { self[ResizableSheetModelKey.self] }
         set { self[ResizableSheetModelKey.self] = newValue }
     }

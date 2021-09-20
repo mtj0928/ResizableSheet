@@ -87,10 +87,10 @@ ResizableSheet
 
 ### Complex Layout
 
-You can update the view based on the current status.
+You can update the view based on the current status.  
 The argument `context` has some informatios about the sheet, like state, view size, progress of dragging and diffY.
 
-Based on the `context`, you can update the content.
+Based on the `context`, you can update the content.  
 **Tips:** Don't forget to add `.allowsHitTesting(false)` to Color view. If you don't add it, the dragging gesture is not recognized.
 
 ```swift
@@ -118,7 +118,7 @@ view.resizableSheet($state) { builder in
 
 ### Supported status
 
-ResizableSheet supports 3 statuses, `.hidden`, `.midium` and `.large`.
+ResizableSheet supports 3 statuses, `.hidden`, `.midium` and `.large`.  
 In default setting, the all statuses are supported, but you can stop to support any statuses.
 
 ```swift
@@ -134,9 +134,9 @@ view.resizableSheet($state) { builder in
 
 <img src="./Doc/Resources/SupportedStatus.gif" width=250pt/>
 
-### Muti Sheets
+### Multi Sheets
 
-ResizableSheet supports multiple sheets.
+ResizableSheet supports multiple sheets.  
 By adding id, ResizableSheet can show multiple sheets.
 
 ```swift
@@ -176,7 +176,7 @@ struct SomeSheet: View {
 
 ### TrackableScrollView
 
-ResizableSheet includes `TrackableScrollView`.
+ResizableSheet includes `TrackableScrollView`.  
 The view synchronises the offset with ResizableSheet.
 
 ```swift
@@ -197,7 +197,7 @@ view.resizableSheet($state) { builder in
 
 ### EmptyBackground
 
-By passing EmptyView as `background`, User can control both the parent view and the sheet.
+By passing EmptyView as `background`, user can control both the parent view and the sheet. 
 
 ```swift
 struct SomeView: View {

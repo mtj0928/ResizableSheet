@@ -37,6 +37,7 @@ public struct ResizableSheetConfiguration {
 
     public var cornerRadius: CGFloat = 40.0
     public var supportState: [ResizableSheetState] = [.hidden, .midium, .large]
+    public var stateThreshold = 0.3
 
     var outsideViewBuilder: (ResizableSheetContext) -> AnyView = { _ in AnyView(EmptyView()) }
 
@@ -70,17 +71,17 @@ public struct ResizableSheetConfiguration {
         let percent = context.percent
         switch context.state {
         case .hidden:
-            guard percent > 0.5 else { return .hidden }
+            guard percent > stateThreshold else { return .hidden }
             return supportState.contains(.midium) ? .midium :
             supportState.contains(.large) ? .large : .hidden
         case .midium:
-            if percent > 0.5 {
+            if percent > stateThreshold {
                 return supportState.contains(.large) ? .large : .midium
-            } else if percent < -0.5 {
+            } else if percent < -stateThreshold {
                 return supportState.contains(.hidden) ? .hidden : .midium
             }
         case .large:
-            if percent < -0.5 {
+            if percent < -stateThreshold {
                 return supportState.contains(.midium) ? .midium :
                 supportState.contains(.hidden) ? .hidden : .large
             }
