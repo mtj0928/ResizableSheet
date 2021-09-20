@@ -70,6 +70,12 @@ extension ResizableSheetBuilder {
         return builder
     }
 
+    public func stateThreshold(_ threshold: Double) -> Self {
+        var builder = self
+        builder.config.stateThreshold = threshold
+        return builder
+    }
+
     public func animation(_ animation: Animation) -> Self {
         var builder = self
         builder.config.animation = animation
