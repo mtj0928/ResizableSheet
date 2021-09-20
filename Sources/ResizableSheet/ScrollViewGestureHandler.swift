@@ -7,7 +7,7 @@ public class ScrollViewGestureHandler: NSObject, UIGestureRecognizerDelegate {
     private weak var view: UIView?
     private weak var scrollView: UIScrollView?
 
-    private var startOffset: CGFloat?
+    var startOffset: CGFloat?
 
     var state = State.standby
 
@@ -31,9 +31,12 @@ public class ScrollViewGestureHandler: NSObject, UIGestureRecognizerDelegate {
         }
 
         switch gesture.state {
-        case .began:
-            self.startOffset = scrollView.contentOffset.y
+        case .began: break
         case .changed:
+            guard let startOffset = startOffset else {
+                return
+            }
+
             let diff = gesture.translation(in: view)
             if resizableSheetModel?.state != .large
                 || scrollView.contentOffset.y < 0
@@ -41,22 +44,27 @@ public class ScrollViewGestureHandler: NSObject, UIGestureRecognizerDelegate {
                 state = .changed
                 resizableSheetModel?.updateOffSet(diff: -diff.y)
                 resizableSheetModel?.commit()
-                scrollView.contentOffset.y = startOffset ?? .zero
+                scrollView.contentOffset.y = startOffset
                 scrollView.isScrollEnabled = false
             } else {
                 scrollView.isScrollEnabled = true
             }
-        case .cancelled: scrollView.isScrollEnabled = true
+        case .cancelled: finish()
         case .ended:
             let diff = gesture.translation(in: view)
             if state == .changed {
                 resizableSheetModel?.finish(diff: -diff.y)
                 state = .standby
             }
-            scrollView.isScrollEnabled = true
-        case .failed: scrollView.isScrollEnabled = true
+            finish()
+        case .failed: finish()
         default: break
         }
+    }
+
+    private func finish() {
+        scrollView?.isScrollEnabled = true
+        startOffset = nil
     }
 
     public func gestureRecognizer(

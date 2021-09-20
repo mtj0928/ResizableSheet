@@ -90,7 +90,9 @@ public class ResizableSheetModel: ObservableObject {
         // update percentage
         switch state {
         case .large:
-            if size.height == mainSize.height {
+            if !midiumSize.height.isZero {
+                percent = contentOffSet / (size.height - midiumSize.height)
+            } else if size.height == mainSize.height {
                 percent = contentOffSet / size.height
             } else {
                 percent = contentOffSet / (size.height - mainSize.height)

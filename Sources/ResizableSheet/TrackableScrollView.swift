@@ -33,6 +33,7 @@ public struct TrackableScrollView<Content: View>: UIViewControllerRepresentable 
 public class TrackableScrollViewController<Content: View>: UIViewController {
 
     let hosintgController = UIHostingController<Content?>(rootView: nil)
+    let scrollViewDelegate = ScrollViewDelegate()
     let gestureHandler = ScrollViewGestureHandler()
 
     let scrollView: UIScrollView = {
@@ -58,6 +59,9 @@ public class TrackableScrollViewController<Content: View>: UIViewController {
 
         scrollView.backgroundColor = .clear
 
+        scrollViewDelegate.gestureHandler = gestureHandler
+        scrollView.delegate = scrollViewDelegate
+
         gestureHandler.setup(for: scrollView, in: view)
     }
 
@@ -72,5 +76,13 @@ public class TrackableScrollViewController<Content: View>: UIViewController {
         scrollView.contentLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         scrollView.contentLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         scrollView.contentLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+}
+
+class ScrollViewDelegate: NSObject, UIScrollViewDelegate {
+    weak var gestureHandler: ScrollViewGestureHandler?
+
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        gestureHandler?.startOffset = scrollView.contentOffset.y
     }
 }
