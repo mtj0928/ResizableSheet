@@ -31,7 +31,8 @@ public class ScrollViewGestureHandler: NSObject, UIGestureRecognizerDelegate {
         }
 
         switch gesture.state {
-        case .began: break
+        case .began:
+            startOffset = scrollView.contentOffset.y
         case .changed:
             guard let startOffset = startOffset else {
                 return

@@ -13,7 +13,7 @@ public class ResizableSheetModel: ObservableObject {
 
     public internal(set) var updateState: (ResizableSheetState) -> () = { _ in }
 
-    private var timer: Timer?
+    private static let dispatchQue = DispatchQueue(label: "ResizableSheet")
 
     public init(state: ResizableSheetState) {
         self.state = state
@@ -40,22 +40,24 @@ public class ResizableSheetModel: ObservableObject {
     }
 
     public func finish(diff: CGFloat) {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { [weak self] timer in
-            guard let self = self else { return }
-            self.updateOffSet(diff: diff)
-            let next = self.config.nextState(context: .init(
-                state: self.state,
-                diffY: self.contentOffSet,
-                percent: self.percent,
-                mainViewSize: self.mainSize,
-                fullViewSize: self.fullSize
-            ))
-            self.state = next
-            self.updateState(next)
-            self.contentOffSet = .zero
-            self.percent = 0
-            self.commit()
+        Self.dispatchQue.async { [weak self] in
+            Thread.sleep(forTimeInterval: 0.01)
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.updateOffSet(diff: diff)
+                let next = self.config.nextState(context: .init(
+                    state: self.state,
+                    diffY: self.contentOffSet,
+                    percent: self.percent,
+                    mainViewSize: self.mainSize,
+                    fullViewSize: self.fullSize
+                ))
+                self.state = next
+                self.updateState(next)
+                self.contentOffSet = .zero
+                self.percent = 0
+                self.commit()
+            }
         }
     }
 
