@@ -1,5 +1,51 @@
 import SwiftUI
 
+public struct ResizableScrollView<Main: View, Additional: View>: View {
+
+    let axes: Axis.Set
+    let showIndicators: Bool
+    let context: ResizableSheetContext
+    let mainViewBuilder: () -> Main
+    let additionalViewBuilder: () -> Additional
+
+    @State var size: CGSize?
+
+    public init(
+        _ axes: Axis.Set = .vertical,
+        showIndicators: Bool = true,
+        context: ResizableSheetContext,
+        @ViewBuilder main: @escaping () -> Main,
+        @ViewBuilder additional: @escaping () -> Additional
+    ) {
+        self.axes = axes
+        self.showIndicators = showIndicators
+        self.context = context
+        self.mainViewBuilder = main
+        self.additionalViewBuilder = additional
+    }
+
+    public var body: some View {
+        TrackableScrollView(axes, showIndicators: showIndicators) {
+            ChildSizeReader(alignment: .top, updateSize: { size in
+                self.size = size
+            }, content: {
+                VStack(spacing: 0) {
+                    mainViewBuilder()
+                }
+            })
+            additionalViewBuilder()
+        }
+        .frame(height: height != nil ? min(height!, context.fullViewSize.height) : nil, alignment: .top)
+    }
+
+    var height: CGFloat? {
+        guard let size = size else {
+            return nil
+        }
+        return context.state != .large ? min(size.height + max(context.diffY, 0), context.fullViewSize.height) : nil
+    }
+}
+
 @available(iOS 14.0, *)
 public struct TrackableScrollView<Content: View>: UIViewControllerRepresentable {
 

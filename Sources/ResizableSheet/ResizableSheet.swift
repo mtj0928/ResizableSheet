@@ -197,8 +197,24 @@ struct ResizableSheet_Preview: PreviewProvider {
                         state: $state,
                         model: model,
                         content: { (context: ResizableSheetContext) in
-                            content(context, $state)
-                                .frame(width: context.fullViewSize.width)
+                            ResizableScrollView(
+                                context: context,
+                                main: {
+                                    ForEach(0..<15) { index in
+                                        Text("\(index)")
+                                            .padding()
+                                    }
+                                },
+                                additional: {
+                                    ForEach(5..<29) { index in
+                                        Text("\(index)")
+                                            .padding()
+                                    }
+                                }
+                            ).overlay(VStack{
+                                GrabBar()
+                                Spacer()
+                            })
                         }
                     )
                 }
@@ -210,33 +226,7 @@ struct ResizableSheet_Preview: PreviewProvider {
 
     static var previews: some View {
         Body { context, state in
-            VStack(spacing: 0) {
-                Text("利用規約が更新されました")
-                    .font(.title3)
-                    .fontWeight(.heavy)
-                    .padding()
-                    .frame(height: 60)
-                TrackableScrollView {
-                    ForEach(0..<100) { index in
-                        Text("\(index). 利用規約が更新されました")
-                    }
-                }.frame(
-                    height: context.state == .midium ? 100 + max(context.diffY, 0) : context.state == .large ? nil : 100
-                )
-                if context.state != .hidden {
-                    Spacer(minLength: 0)
-                }
-                Button("Botton") {
-                    if state.wrappedValue == .large {
-                        state.wrappedValue = .midium
-                    } else if state.wrappedValue == .midium {
-                        state.wrappedValue = .large
-                    }
-                }
-                .font(.title3)
-                .padding()
-            }
-            .frame(width: context.fullViewSize.width)
+            EmptyView()
         }
     }
 }
