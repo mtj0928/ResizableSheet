@@ -4,7 +4,7 @@ public class ResizableSheetModel: ObservableObject {
 
     public internal(set) var contentOffSet: CGFloat = .zero
     public internal(set) var mainSize: CGSize = .zero
-    public internal(set) var midiumSize: CGSize = .zero
+    public internal(set) var mediumSize: CGSize = .zero
     public internal(set) var fullSize: CGSize = .zero
     public internal(set) var percent: CGFloat = .zero
     public internal(set) var state: ResizableSheetState
@@ -34,8 +34,8 @@ public class ResizableSheetModel: ObservableObject {
 
     var currentAnchor: CGFloat {
         state == .hidden ? fullSize.height :
-            state == .midium && midiumSize.height.isZero ? fullSize.height :
-            state == .midium ? fullSize.height - midiumSize.height :
+            state == .medium && mediumSize.height.isZero ? fullSize.height :
+            state == .medium ? fullSize.height - mediumSize.height :
             .zero
     }
 
@@ -67,16 +67,16 @@ public class ResizableSheetModel: ObservableObject {
 
         switch (state, diff > 0) {
         case (.hidden, _): break
-        case (.midium, true):
+        case (.medium, true):
             if !config.supportState.contains(.large) {
                 diff = diff / 5
             }
-        case (.midium, false):
+        case (.medium, false):
             if !config.supportState.contains(.hidden) {
                 diff = diff / 5
             }
         case (.large, _):
-            if !config.supportState.contains(.midium)
+            if !config.supportState.contains(.medium)
                 || !config.supportState.contains(.hidden) {
                 diff = diff / 5
             }
@@ -92,14 +92,14 @@ public class ResizableSheetModel: ObservableObject {
         // update percentage
         switch state {
         case .large:
-            if !midiumSize.height.isZero {
-                percent = contentOffSet / (size.height - midiumSize.height)
+            if !mediumSize.height.isZero {
+                percent = contentOffSet / (size.height - mediumSize.height)
             } else if size.height == mainSize.height {
                 percent = contentOffSet / size.height
             } else {
                 percent = contentOffSet / (size.height - mainSize.height)
             }
-        case .midium:
+        case .medium:
             if diff >= 0 {
                 if size.height == mainSize.height {
                     percent = contentOffSet / size.height
@@ -107,7 +107,7 @@ public class ResizableSheetModel: ObservableObject {
                     percent = contentOffSet / (size.height - mainSize.height)
                 }
             } else {
-                percent = contentOffSet / midiumSize.height
+                percent = contentOffSet / mediumSize.height
             }
         case .hidden: break
         }

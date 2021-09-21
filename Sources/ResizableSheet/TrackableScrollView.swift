@@ -5,7 +5,7 @@ public struct ResizableScrollView<Main: View, Additional: View>: View {
     let axes: Axis.Set
     let showIndicators: Bool
     let context: ResizableSheetContext
-    let additionalViewHeightForMidium: CGFloat
+    let additionalViewHeightForMedium: CGFloat
     let mainViewBuilder: () -> Main
     let additionalViewBuilder: () -> Additional
 
@@ -14,14 +14,14 @@ public struct ResizableScrollView<Main: View, Additional: View>: View {
     public init(
         _ axes: Axis.Set = .vertical,
         showIndicators: Bool = true,
-        additionalViewHeightForMidium: CGFloat = .zero,
+        additionalViewHeightForMedium: CGFloat = .zero,
         context: ResizableSheetContext,
         @ViewBuilder main: @escaping () -> Main,
         @ViewBuilder additional: @escaping () -> Additional
     ) {
         self.axes = axes
         self.showIndicators = showIndicators
-        self.additionalViewHeightForMidium = additionalViewHeightForMidium
+        self.additionalViewHeightForMedium = additionalViewHeightForMedium
         self.context = context
         self.mainViewBuilder = main
         self.additionalViewBuilder = additional
@@ -51,7 +51,7 @@ public struct ResizableScrollView<Main: View, Additional: View>: View {
         guard let size = size else {
             return nil
         }
-        return context.state != .large ? min(size.height + max(context.diffY, 0) + additionalViewHeightForMidium, context.fullViewSize.height) : nil
+        return context.state != .large ? min(size.height + max(context.diffY, 0) + additionalViewHeightForMedium, context.fullViewSize.height) : nil
     }
 }
 

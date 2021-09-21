@@ -104,8 +104,8 @@ public struct ResizableSheet: View, Identifiable {
 
     var mainHeight: CGFloat? {
         model.contentOffSet.isZero ? nil :
-        state == .midium ? max(model.midiumSize.height + model.contentOffSet, model.midiumSize.height) :
-        state == .large ? max(model.fullSize.height + model.contentOffSet, model.midiumSize.height) :
+        state == .medium ? max(model.mediumSize.height + model.contentOffSet, model.mediumSize.height) :
+        state == .large ? max(model.fullSize.height + model.contentOffSet, model.mediumSize.height) :
         model.mainSize.height
     }
 
@@ -115,7 +115,7 @@ public struct ResizableSheet: View, Identifiable {
                 .frame(height: mainHeight)
 
             Spacer(minLength: 0)
-                .layoutPriority(state == .midium ? 1 : -1)
+                .layoutPriority(state == .medium ? 1 : -1)
         }
     }
 
@@ -129,11 +129,11 @@ public struct ResizableSheet: View, Identifiable {
             }
 
             if model.contentOffSet.isZero
-                && state == .midium
-                && model.midiumSize != size
+                && state == .medium
+                && model.mediumSize != size
                 && model.fullSize.height != size.height // Workarround
             {
-                model.midiumSize = size
+                model.mediumSize = size
                 model.commit()
             }
         }) {
@@ -183,8 +183,8 @@ struct ResizableSheet_Preview: PreviewProvider {
                             Button("Hidden", action: {
                                 state = .hidden
                             })
-                            Button("Midium", action: {
-                                state = .midium
+                            Button("Medium", action: {
+                                state = .medium
                             })
                             Button("Large", action: {
                                 state = .large
@@ -198,7 +198,7 @@ struct ResizableSheet_Preview: PreviewProvider {
                         model: model,
                         content: { (context: ResizableSheetContext) in
                             ResizableScrollView(
-                                additionalViewHeightForMidium: 44,
+                                additionalViewHeightForMedium: 44,
                                 context: context,
                                 main: {
                                     ForEach(0..<3) { index in
