@@ -91,7 +91,6 @@ public class PreviewResizableSheetCenter: ResizableSheetCenter, ObservableObject
 
     public func previews() -> some View {
         ZStack {
-            Text("\(sheets.count)")
             ForEach(sheets) { builder in
                 builder.build()
             }
