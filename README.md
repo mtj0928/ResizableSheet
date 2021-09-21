@@ -14,9 +14,9 @@ Only SwiftPM
 
 - 3 states are supported.
   - hidden
-  - midium
+  - medium
   - large
-- The midium size is automatically calculated baesd on the content.
+- The medium size is automatically calculated baesd on the content.
 - You can update view for each state.
 - ResizableSheet contains `ResizableScrollView` and  `TrackableScrollView`.  
   `TrackableScrollView` is a wrapper view of `UIScrollView` and the offset synchronizes with dragging of sheet.  
@@ -51,7 +51,7 @@ struct SomeView: View {
 
     var body: some View {
         Button("Show sheet") {
-            state = .midium
+            state = .medium
         }
         .resizableSheet($state) { builder in
             builder.content { context in
@@ -100,14 +100,14 @@ view.resizableSheet($state) { builder in
     builder.content { context in
         VStack {
             Text(context.state == .hidden ? "hidden" :
-                    context.state == .midium ? "midium" : "large"
+                    context.state == .medium ? "medium" : "large"
             )
             Color.gray
                 .frame(height:
-                        context.state == .midium ? max(0, context.diffY) :
+                        context.state == .medium ? max(0, context.diffY) :
                         context.state == .hidden ? 0 : nil
                 )
-                .opacity(context.state == .midium ? context.percent : 1.0 - abs(context.percent))
+                .opacity(context.state == .medium ? context.percent : 1.0 - abs(context.percent))
                 .allowsHitTesting(false)
             Text("Buttom")
         }
@@ -120,7 +120,7 @@ view.resizableSheet($state) { builder in
 
 ### Supported status
 
-ResizableSheet supports 3 statuses, `.hidden`, `.midium` and `.large`.  
+ResizableSheet supports 3 statuses, `.hidden`, `.medium` and `.large`.  
 In default setting, the all statuses are supported, but you can stop to support any statuses.
 
 ```swift
@@ -128,7 +128,7 @@ view.resizableSheet($state) { builder in
     builder.content { context in
         Text("Text").frame(height: 300)
     }
-    .supportedState([.midium])
+    .supportedState([.medium])
 }
 ```
 
@@ -150,12 +150,12 @@ struct SomeSheet: View {
 
     var body: some View {
         Button("Show sheet A") {
-            stateA = .midium
+            stateA = .medium
         }
         .resizableSheet($stateA, id: "A") { builder in
             builder.content { context in
                 Button("Show sheet B") {
-                    stateB = .midium
+                    stateB = .medium
                 }.frame(height: 300)
             }
         }
@@ -180,13 +180,13 @@ struct SomeSheet: View {
 
 ResizableSheet includes `ResizableScrollView`.  
 The view synchronises the offset with ResizableSheet.  
-**Tips:** Using `ResizableScroolView` is recommended because you don't need to calculate the midium size.
+**Tips:** Using `ResizableScroolView` is recommended because you don't need to calculate the medium size.
 
 ```swift
 view.resizableSheet($state) { builder in
     builder.content { context in
         ResizableScrollView(context: context) {
-            // These views are shown in midium size and large size.
+            // These views are shown in medium size and large size.
             ForEach(0..<5) { index in
                 Text("\(index)")
                     .padding()
@@ -221,7 +221,7 @@ struct SomeView: View {
             }
             Spacer()
             Button("Show sheet") {
-                state = .midium
+                state = .medium
             }
             Spacer()
         }

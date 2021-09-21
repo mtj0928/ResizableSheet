@@ -7,16 +7,16 @@ public struct ResizableSheetConfiguration {
         @Environment(\.resizableSheetModel) var resizableSheetModel
 
         let color: Color
-        let midiumOpacity = 0.4
+        let mediumOpacity = 0.4
         let fullOpacity = 0.9
         var diff: CGFloat {
-            fullOpacity - midiumOpacity
+            fullOpacity - mediumOpacity
         }
 
         var opacity: CGFloat {
             switch context.state {
             case .hidden: return 0.0
-            case .midium: return context.percent >= 0 ? midiumOpacity + diff * Double(context.percent) : diff * Double(1 + context.percent)
+            case .medium: return context.percent >= 0 ? mediumOpacity + diff * Double(context.percent) : diff * Double(1 + context.percent)
             case .large: return fullOpacity + diff * Double(context.percent)
             }
         }
@@ -36,7 +36,7 @@ public struct ResizableSheetConfiguration {
     }
 
     public var cornerRadius: CGFloat = 40.0
-    public var supportState: [ResizableSheetState] = [.hidden, .midium, .large]
+    public var supportState: [ResizableSheetState] = [.hidden, .medium, .large]
     public var stateThreshold = 0.3
 
     var outsideViewBuilder: (ResizableSheetContext) -> AnyView = { _ in AnyView(EmptyView()) }
@@ -72,17 +72,17 @@ public struct ResizableSheetConfiguration {
         switch context.state {
         case .hidden:
             guard percent > stateThreshold else { return .hidden }
-            return supportState.contains(.midium) ? .midium :
+            return supportState.contains(.medium) ? .medium :
             supportState.contains(.large) ? .large : .hidden
-        case .midium:
+        case .medium:
             if percent > stateThreshold {
-                return supportState.contains(.large) ? .large : .midium
+                return supportState.contains(.large) ? .large : .medium
             } else if percent < -stateThreshold {
-                return supportState.contains(.hidden) ? .hidden : .midium
+                return supportState.contains(.hidden) ? .hidden : .medium
             }
         case .large:
             if percent < -stateThreshold {
-                return supportState.contains(.midium) ? .midium :
+                return supportState.contains(.medium) ? .medium :
                 supportState.contains(.hidden) ? .hidden : .large
             }
         }
