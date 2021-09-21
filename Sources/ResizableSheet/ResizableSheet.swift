@@ -193,10 +193,8 @@ struct ResizableSheet_Preview: PreviewProvider {
                         }
                         Spacer()
                     }
-                    ResizableSheet(
-                        state: $state,
-                        model: model,
-                        content: { (context: ResizableSheetContext) in
+                    .resizableSheet($state) { builder in
+                        builder.content { context in
                             ResizableScrollView(
                                 additionalViewHeightForMedium: 44,
                                 context: context,
@@ -217,7 +215,7 @@ struct ResizableSheet_Preview: PreviewProvider {
                                 Spacer()
                             })
                         }
-                    )
+                    }
                 }
                 .navigationBarTitleDisplayMode(.inline)
                     .navigationTitle("Hoge")
@@ -226,8 +224,10 @@ struct ResizableSheet_Preview: PreviewProvider {
     }
 
     static var previews: some View {
-        Body { context, state in
-            EmptyView()
+        ResizableSheetPreview {
+            Body { context, state in
+                EmptyView()
+            }
         }
     }
 }
