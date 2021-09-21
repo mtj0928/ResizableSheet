@@ -18,7 +18,9 @@ Only SwiftPM
   - large
 - The midium size is automatically calculated baesd on the content.
 - You can update view for each state.
-- ResizableSheet contains `TrackableScrollView`. The view is wrapper view of `UIScrollView` and the offset synchronizes with dragging of sheet.
+- ResizableSheet contains `ResizableScrollView` and  `TrackableScrollView`.  
+  `TrackableScrollView` is a wrapper view of `UIScrollView` and the offset synchronizes with dragging of sheet.  
+  `ResizableScroolView` is a wrapper class of `TrackableScrollView`, and 
 - ResizableSheet can be shonw on another ResizableSheet.
 
 ## Simple Example 
@@ -174,26 +176,33 @@ struct SomeSheet: View {
 
 
 
-### TrackableScrollView
+### ResizableScroolView (TrackableScrollView)
 
-ResizableSheet includes `TrackableScrollView`.  
-The view synchronises the offset with ResizableSheet.
+ResizableSheet includes `ResizableScrollView`.  
+The view synchronises the offset with ResizableSheet.  
+**Tips:** Using `ResizableScroolView` is recommended because you don't need to calculate the midium size.
 
 ```swift
 view.resizableSheet($state) { builder in
     builder.content { context in
-        TrackableScrollView {
-            ForEach(0..<100) { index in
+        ResizableScrollView(context: context) {
+            // These views are shown in midium size and large size.
+            ForEach(0..<5) { index in
+                Text("\(index)")
+                    .padding()
+            }
+        } additional: {
+            // These views are shown in only large size.
+            ForEach(5..<100) { index in
                 Text("\(index)")
                     .padding()
             }
         }
-        .frame(height: context.state != .large ? 300 + max(context.diffY, 0) : nil)
     }
 }
 ```
 
-<img src="./Doc/Resources/ScrollView.gif" width=250pt/>
+<img src="./Doc/Resources/ResizableScrollView.gif" width=250pt/>
 
 ### EmptyBackground
 

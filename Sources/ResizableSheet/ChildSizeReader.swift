@@ -10,21 +10,26 @@ struct SizePreferenceKey: PreferenceKey {
 }
 
 public struct ChildSizeReader<Content: View>: View {
+    let alignment: Alignment
     let content: () -> Content
     let updateSize: (CGSize) -> ()
 
     public init(
+        alignment: Alignment = .center,
         updateSize: @escaping (CGSize) -> (),
         @ViewBuilder content: @escaping () -> Content
     ) {
+        self.alignment = alignment
         self.updateSize = updateSize
         self.content = content
     }
 
     public init(
+        alignment: Alignment = .center,
         size: Binding<CGSize>,
         @ViewBuilder content: @escaping () -> Content
     ) {
+        self.alignment = alignment
         self.updateSize = { newSize in
             size.wrappedValue = newSize
         }
@@ -32,7 +37,7 @@ public struct ChildSizeReader<Content: View>: View {
     }
 
     public var body: some View {
-        ZStack {
+        ZStack(alignment: alignment) {
             content()
                 .background(
                     GeometryReader { proxy in

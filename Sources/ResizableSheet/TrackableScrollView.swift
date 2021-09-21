@@ -1,5 +1,60 @@
 import SwiftUI
 
+public struct ResizableScrollView<Main: View, Additional: View>: View {
+
+    let axes: Axis.Set
+    let showIndicators: Bool
+    let context: ResizableSheetContext
+    let additionalViewHeightForMidium: CGFloat
+    let mainViewBuilder: () -> Main
+    let additionalViewBuilder: () -> Additional
+
+    @State var size: CGSize?
+
+    public init(
+        _ axes: Axis.Set = .vertical,
+        showIndicators: Bool = true,
+        additionalViewHeightForMidium: CGFloat = .zero,
+        context: ResizableSheetContext,
+        @ViewBuilder main: @escaping () -> Main,
+        @ViewBuilder additional: @escaping () -> Additional
+    ) {
+        self.axes = axes
+        self.showIndicators = showIndicators
+        self.additionalViewHeightForMidium = additionalViewHeightForMidium
+        self.context = context
+        self.mainViewBuilder = main
+        self.additionalViewBuilder = additional
+    }
+
+    public var body: some View {
+        GeometryReader { proxy in
+            TrackableScrollView(axes, showIndicators: showIndicators) {
+                VStack(spacing: 0) {
+                    ChildSizeReader(alignment: .top, updateSize: { size in
+                        self.size = size
+                    }, content: {
+                        VStack(spacing: 0) {
+                            mainViewBuilder()
+                        }
+                    })
+                    additionalViewBuilder()
+                    Spacer(minLength: 0)
+                }
+                .frame(minHeight: proxy.size.height)
+            }
+        }
+        .frame(height: height, alignment: .top)
+    }
+
+    var height: CGFloat? {
+        guard let size = size else {
+            return nil
+        }
+        return context.state != .large ? min(size.height + max(context.diffY, 0) + additionalViewHeightForMidium, context.fullViewSize.height) : nil
+    }
+}
+
 @available(iOS 14.0, *)
 public struct TrackableScrollView<Content: View>: UIViewControllerRepresentable {
 
