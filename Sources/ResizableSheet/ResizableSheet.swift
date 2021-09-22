@@ -3,7 +3,7 @@ import SwiftUI
 public struct ResizableSheetContext {
     public let state: ResizableSheetState
     public let diffY: CGFloat
-    public let percent: CGFloat
+    public let progress: CGFloat
     public let mainViewSize: CGSize
     public let fullViewSize: CGSize
 }
@@ -23,7 +23,7 @@ public struct ResizableSheet: View, Identifiable {
         ResizableSheetContext(
             state: state,
             diffY: model.contentOffSet,
-            percent: model.percent,
+            progress: model.progress,
             mainViewSize: model.mainSize,
             fullViewSize: model.fullSize
         )

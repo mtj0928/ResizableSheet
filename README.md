@@ -107,7 +107,7 @@ view.resizableSheet($state) { builder in
                         context.state == .medium ? max(0, context.diffY) :
                         context.state == .hidden ? 0 : nil
                 )
-                .opacity(context.state == .medium ? context.percent : 1.0 - abs(context.percent))
+                .opacity(context.state == .medium ? context.progress : 1.0 - abs(context.progress))
                 .allowsHitTesting(false)
             Text("Buttom")
         }

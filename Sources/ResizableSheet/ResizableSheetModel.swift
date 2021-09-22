@@ -6,7 +6,7 @@ public class ResizableSheetModel: ObservableObject {
     public internal(set) var mainSize: CGSize = .zero
     public internal(set) var mediumSize: CGSize = .zero
     public internal(set) var fullSize: CGSize = .zero
-    public internal(set) var percent: CGFloat = .zero
+    public internal(set) var progress: CGFloat = .zero
     public internal(set) var state: ResizableSheetState
     
     public internal(set) var config: ResizableSheetConfiguration = ResizableSheetConfiguration()
@@ -48,14 +48,14 @@ public class ResizableSheetModel: ObservableObject {
                 let next = self.config.nextState(context: .init(
                     state: self.state,
                     diffY: self.contentOffSet,
-                    percent: self.percent,
+                    progress: self.progress,
                     mainViewSize: self.mainSize,
                     fullViewSize: self.fullSize
                 ))
                 self.state = next
                 self.updateState(next)
                 self.contentOffSet = .zero
-                self.percent = 0
+                self.progress = 0
                 self.commit()
             }
         }
@@ -89,25 +89,25 @@ public class ResizableSheetModel: ObservableObject {
             contentOffSet = diff
         }
 
-        // update percentage
+        // update progress
         switch state {
         case .large:
             if !mediumSize.height.isZero {
-                percent = contentOffSet / (size.height - mediumSize.height)
+                progress = contentOffSet / (size.height - mediumSize.height)
             } else if size.height == mainSize.height {
-                percent = contentOffSet / size.height
+                progress = contentOffSet / size.height
             } else {
-                percent = contentOffSet / (size.height - mainSize.height)
+                progress = contentOffSet / (size.height - mainSize.height)
             }
         case .medium:
             if diff >= 0 {
                 if size.height == mainSize.height {
-                    percent = contentOffSet / size.height
+                    progress = contentOffSet / size.height
                 } else {
-                    percent = contentOffSet / (size.height - mainSize.height)
+                    progress = contentOffSet / (size.height - mainSize.height)
                 }
             } else {
-                percent = contentOffSet / mediumSize.height
+                progress = contentOffSet / mediumSize.height
             }
         case .hidden: break
         }

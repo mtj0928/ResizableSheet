@@ -16,8 +16,8 @@ public struct ResizableSheetConfiguration {
         var opacity: CGFloat {
             switch context.state {
             case .hidden: return 0.0
-            case .medium: return context.percent >= 0 ? mediumOpacity + diff * Double(context.percent) : diff * Double(1 + context.percent)
-            case .large: return fullOpacity + diff * Double(context.percent)
+            case .medium: return context.progress >= 0 ? mediumOpacity + diff * Double(context.progress) : diff * Double(1 + context.progress)
+            case .large: return fullOpacity + diff * Double(context.progress)
             }
         }
 
@@ -68,20 +68,20 @@ public struct ResizableSheetConfiguration {
     }
 
     private func _nextState(context: ResizableSheetContext) -> ResizableSheetState {
-        let percent = context.percent
+        let progress = context.progress
         switch context.state {
         case .hidden:
-            guard percent > stateThreshold else { return .hidden }
+            guard progress > stateThreshold else { return .hidden }
             return supportState.contains(.medium) ? .medium :
             supportState.contains(.large) ? .large : .hidden
         case .medium:
-            if percent > stateThreshold {
+            if progress > stateThreshold {
                 return supportState.contains(.large) ? .large : .medium
-            } else if percent < -stateThreshold {
+            } else if progress < -stateThreshold {
                 return supportState.contains(.hidden) ? .hidden : .medium
             }
         case .large:
-            if percent < -stateThreshold {
+            if progress < -stateThreshold {
                 return supportState.contains(.medium) ? .medium :
                 supportState.contains(.hidden) ? .hidden : .large
             }
