@@ -2,7 +2,6 @@ import SwiftUI
 
 public struct ResizableScrollView<Main: View, Additional: View>: View {
 
-    let axes: Axis.Set
     let showIndicators: Bool
     let context: ResizableSheetContext
     let additionalViewHeightForMedium: CGFloat
@@ -12,14 +11,12 @@ public struct ResizableScrollView<Main: View, Additional: View>: View {
     @State var size: CGSize?
 
     public init(
-        _ axes: Axis.Set = .vertical,
         showIndicators: Bool = true,
         additionalViewHeightForMedium: CGFloat = .zero,
         context: ResizableSheetContext,
         @ViewBuilder main: @escaping () -> Main,
         @ViewBuilder additional: @escaping () -> Additional
     ) {
-        self.axes = axes
         self.showIndicators = showIndicators
         self.additionalViewHeightForMedium = additionalViewHeightForMedium
         self.context = context
@@ -29,46 +26,49 @@ public struct ResizableScrollView<Main: View, Additional: View>: View {
 
     public var body: some View {
         GeometryReader { proxy in
-            TrackableScrollView(axes, showIndicators: showIndicators) {
+            TrackableScrollView(showIndicators: showIndicators) {
                 VStack(spacing: 0) {
-                    ChildSizeReader(alignment: .top, updateSize: { size in
-                        self.size = size
-                    }, content: {
-                        VStack(spacing: 0) {
-                            mainViewBuilder()
+                    ChildSizeReader(
+                        alignment: .top,
+                        updateSize: { size in
+                            self.size = size
+                        },
+                        content: {
+                            VStack(spacing: 0) {
+                                mainViewBuilder()
+                            }
                         }
-                    })
+                    )
                     additionalViewBuilder()
                     Spacer(minLength: 0)
                 }
-                .frame(minHeight: proxy.size.height)
             }
         }
-        .frame(height: height, alignment: .top)
+        .frame(minHeight: height)
     }
 
     var height: CGFloat? {
         guard let size = size else {
             return nil
         }
-        return context.state != .large ? min(size.height + max(context.diffY, 0) + additionalViewHeightForMedium, context.fullViewSize.height) : nil
+        return context.state != .large ? min(
+            size.height + max(context.diffY, 0) + additionalViewHeightForMedium,
+            context.fullViewSize.height
+        ) : context.fullViewSize.height + context.diffY
     }
 }
 
 @available(iOS 14.0, *)
 public struct TrackableScrollView<Content: View>: UIViewControllerRepresentable {
 
-    let axes: Axis.Set
     let showIndicators: Bool
     let content: () -> Content
     @Environment(\.resizableSheetModel) var resizableSheetModel
 
     public init(
-        _ axes: Axis.Set = .vertical,
         showIndicators: Bool = true,
         @ViewBuilder content: @escaping () -> Content
     ) {
-        self.axes = axes
         self.showIndicators = showIndicators
         self.content = content
     }
@@ -77,6 +77,7 @@ public struct TrackableScrollView<Content: View>: UIViewControllerRepresentable 
         let viewController = TrackableScrollViewController<Content>()
         viewController.hosintgController.rootView = content()
         viewController.gestureHandler.resizableSheetModel = resizableSheetModel
+        viewController.scrollView.showsVerticalScrollIndicator = showIndicators
         return viewController
     }
 
@@ -106,10 +107,10 @@ public class TrackableScrollViewController<Content: View>: UIViewController {
     private func setupScrollView() {
         view.addSubview(scrollView)
 
-        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        scrollView.frameLayoutGuide.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        scrollView.frameLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        scrollView.frameLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        scrollView.frameLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
 
         scrollView.backgroundColor = .clear
 
@@ -117,15 +118,21 @@ public class TrackableScrollViewController<Content: View>: UIViewController {
     }
 
     private func setupHostingController() {
+        addChild(hosintgController)
         scrollView.addSubview(hosintgController.view)
+        hosintgController.didMove(toParent: self)
 
         guard let view = hosintgController.view else { return }
         view.backgroundColor = .clear
 
         view.translatesAutoresizingMaskIntoConstraints = false
+
         scrollView.contentLayoutGuide.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         scrollView.contentLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         scrollView.contentLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         scrollView.contentLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+
+        scrollView.contentInsetAdjustmentBehavior = .never
+        view.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor, constant: 1).isActive = true
     }
 }

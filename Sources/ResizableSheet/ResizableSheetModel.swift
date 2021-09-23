@@ -49,6 +49,7 @@ public class ResizableSheetModel: ObservableObject {
                     state: self.state,
                     diffY: self.contentOffSet,
                     progress: self.progress,
+                    mediumViewSize: self.mediumSize,
                     mainViewSize: self.mainSize,
                     fullViewSize: self.fullSize
                 ))
@@ -92,7 +93,7 @@ public class ResizableSheetModel: ObservableObject {
         // update progress
         switch state {
         case .large:
-            if !mediumSize.height.isZero {
+            if !mediumSize.height.isZero && size.height >= mediumSize.height {
                 progress = contentOffSet / (size.height - mediumSize.height)
             } else if size.height == mainSize.height {
                 progress = contentOffSet / size.height

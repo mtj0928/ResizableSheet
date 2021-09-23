@@ -4,6 +4,7 @@ public struct ResizableSheetContext {
     public let state: ResizableSheetState
     public let diffY: CGFloat
     public let progress: CGFloat
+    public let mediumViewSize: CGSize
     public let mainViewSize: CGSize
     public let fullViewSize: CGSize
 }
@@ -24,6 +25,7 @@ public struct ResizableSheet: View, Identifiable {
             state: state,
             diffY: model.contentOffSet,
             progress: model.progress,
+            mediumViewSize: model.mediumSize,
             mainViewSize: model.mainSize,
             fullViewSize: model.fullSize
         )
@@ -92,6 +94,7 @@ public struct ResizableSheet: View, Identifiable {
                         .cornerRadius(config.cornerRadius, corners: [.topLeft, .topRight])
                         .offset(y: model.offset(state: state, in: proxy.size))
                         .animation(config.animation)
+                        .transition(.move(edge: .bottom).animation(config.animation))
                 }
             }
             .onAppear {
@@ -195,25 +198,34 @@ struct ResizableSheet_Preview: PreviewProvider {
                     }
                     .resizableSheet($state) { builder in
                         builder.content { context in
+//                            Text("Hoge")
+//                                .frame(height: context.fullViewSize.height - 1)
                             ResizableScrollView(
-                                additionalViewHeightForMedium: 44,
+                                additionalViewHeightForMedium: 0,
                                 context: context,
                                 main: {
-                                    ForEach(0..<3) { index in
-                                        Text("\(index)")
-                                            .padding()
+                                    ForEach(0..<20) { index in
+                                        HStack {
+                                            Text("\(index)")
+                                            Spacer()
+                                        }
+                                        .padding()
                                     }
                                 },
                                 additional: {
-                                    ForEach(5..<19) { index in
-                                        Text("\(index)")
+                                    ForEach(13..<15) { index in
+                                        HStack {
+                                            Text("\(index)")
+                                            Spacer()
+                                        }
                                             .padding()
                                     }
                                 }
-                            ).overlay(VStack{
-                                GrabBar()
-                                Spacer()
-                            })
+                            )
+                                .overlay(VStack{
+                                    GrabBar()
+                                    Spacer()
+                                })
                         }
                     }
                 }
