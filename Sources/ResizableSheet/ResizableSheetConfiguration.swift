@@ -81,9 +81,17 @@ public struct ResizableSheetConfiguration {
                 return supportState.contains(.hidden) ? .hidden : .medium
             }
         case .large:
-            if progress < -stateThreshold {
-                return supportState.contains(.medium) ? .medium :
-                supportState.contains(.hidden) ? .hidden : .large
+            if supportState.contains(.medium)
+                && context.mediumViewSize.height != context.fullViewSize.height {
+                let progress = context.diffY / (context.fullViewSize.height - context.mediumViewSize.height)
+                if progress < -stateThreshold {
+                    return .medium
+                }
+            } else if supportState.contains(.hidden) {
+                let progress = context.diffY / context.mainViewSize.height
+                if progress < -stateThreshold {
+                    return .hidden
+                }
             }
         }
         return context.state

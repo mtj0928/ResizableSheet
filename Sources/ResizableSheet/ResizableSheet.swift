@@ -3,6 +3,7 @@ import SwiftUI
 public struct ResizableSheetContext {
     public let state: ResizableSheetState
     public let diffY: CGFloat
+    public let offset: CGFloat
     public let progress: CGFloat
     public let mediumViewSize: CGSize
     public let mainViewSize: CGSize
@@ -24,6 +25,7 @@ public struct ResizableSheet: View, Identifiable {
         ResizableSheetContext(
             state: state,
             diffY: model.contentOffSet,
+            offset: model.offset,
             progress: model.progress,
             mediumViewSize: model.mediumSize,
             mainViewSize: model.mainSize,
@@ -134,7 +136,6 @@ public struct ResizableSheet: View, Identifiable {
             if model.contentOffSet.isZero
                 && state == .medium
                 && model.mediumSize != size
-                && model.fullSize.height != size.height // Workarround
             {
                 model.mediumSize = size
                 model.commit()
@@ -144,6 +145,7 @@ public struct ResizableSheet: View, Identifiable {
                 mainViewBuilder(currentContext)
                 Spacer(minLength: 0)
             }
+            .frame(maxHeight: model.fullSize.height)
         }
     }
 
@@ -198,34 +200,34 @@ struct ResizableSheet_Preview: PreviewProvider {
                     }
                     .resizableSheet($state) { builder in
                         builder.content { context in
-//                            Text("Hoge")
-//                                .frame(height: context.fullViewSize.height - 1)
-                            ResizableScrollView(
-                                additionalViewHeightForMedium: 0,
-                                context: context,
-                                main: {
-                                    ForEach(0..<20) { index in
-                                        HStack {
-                                            Text("\(index)")
-                                            Spacer()
-                                        }
-                                        .padding()
-                                    }
-                                },
-                                additional: {
-                                    ForEach(13..<15) { index in
-                                        HStack {
-                                            Text("\(index)")
-                                            Spacer()
-                                        }
-                                            .padding()
-                                    }
-                                }
-                            )
-                                .overlay(VStack{
-                                    GrabBar()
-                                    Spacer()
-                                })
+                            Text("Hoge")
+                                .frame(height: 400)
+//                            ResizableScrollView(
+//                                additionalViewHeightForMedium: 0,
+//                                context: context,
+//                                main: {
+//                                    ForEach(0..<10) { index in
+//                                        HStack {
+//                                            Text("\(index)")
+//                                            Spacer()
+//                                        }
+//                                        .padding()
+//                                    }
+//                                },
+//                                additional: {
+//                                    ForEach(13..<35) { index in
+//                                        HStack {
+//                                            Text("\(index)")
+//                                            Spacer()
+//                                        }
+//                                            .padding()
+//                                    }
+//                                }
+//                            )
+//                                .overlay(VStack{
+//                                    GrabBar()
+//                                    Spacer()
+//                                })
                         }
                     }
                 }

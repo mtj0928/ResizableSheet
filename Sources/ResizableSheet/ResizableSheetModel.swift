@@ -19,6 +19,10 @@ public class ResizableSheetModel: ObservableObject {
         self.state = state
     }
 
+    var offset: CGFloat {
+        currentAnchor - contentOffSet
+    }
+
     func offset(state: ResizableSheetState, in size: CGSize) -> CGFloat {
         if self.state != state {
             self.state = state
@@ -29,7 +33,7 @@ public class ResizableSheetModel: ObservableObject {
             fullSize = size
         }
 
-        return currentAnchor - contentOffSet
+        return offset
     }
 
     var currentAnchor: CGFloat {
@@ -48,6 +52,7 @@ public class ResizableSheetModel: ObservableObject {
                 let next = self.config.nextState(context: .init(
                     state: self.state,
                     diffY: self.contentOffSet,
+                    offset: self.offset,
                     progress: self.progress,
                     mediumViewSize: self.mediumSize,
                     mainViewSize: self.mainSize,
