@@ -200,34 +200,34 @@ struct ResizableSheet_Preview: PreviewProvider {
                     }
                     .resizableSheet($state) { builder in
                         builder.content { context in
-                            Text("Hoge")
-                                .frame(height: 400)
-//                            ResizableScrollView(
-//                                additionalViewHeightForMedium: 0,
-//                                context: context,
-//                                main: {
-//                                    ForEach(0..<10) { index in
-//                                        HStack {
-//                                            Text("\(index)")
-//                                            Spacer()
-//                                        }
-//                                        .padding()
-//                                    }
-//                                },
-//                                additional: {
-//                                    ForEach(13..<35) { index in
-//                                        HStack {
-//                                            Text("\(index)")
-//                                            Spacer()
-//                                        }
-//                                            .padding()
-//                                    }
-//                                }
-//                            )
-//                                .overlay(VStack{
-//                                    GrabBar()
-//                                    Spacer()
-//                                })
+//                            Text("Hoge")
+//                                .frame(height: 400)
+                            ResizableScrollView(
+                                additionalViewHeightForMedium: 0,
+                                context: context,
+                                main: {
+                                    ForEach(0..<03) { index in
+                                        HStack {
+                                            Text("\(index)")
+                                            Spacer()
+                                        }
+                                        .padding()
+                                    }
+                                },
+                                additional: {
+                                    ForEach(13..<15) { index in
+                                        HStack {
+                                            Text("\(index)")
+                                            Spacer()
+                                        }
+                                            .padding()
+                                    }
+                                }
+                            )
+                                .overlay(VStack{
+                                    GrabBar()
+                                    Spacer()
+                                })
                         }
                     }
                 }

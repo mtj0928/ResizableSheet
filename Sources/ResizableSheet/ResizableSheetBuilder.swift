@@ -2,7 +2,7 @@ import SwiftUI
 
 public struct ResizableSheetBuilder: Identifiable {
 
-    // imutable
+    // immutable
     public let model: ResizableSheetModel
     public let id: String
     let state: Binding<ResizableSheetState>
