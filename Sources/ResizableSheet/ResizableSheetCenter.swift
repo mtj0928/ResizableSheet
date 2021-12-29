@@ -9,7 +9,7 @@ public class ResizableSheetCenter {
         didSet { update() }
     }
 
-    private let window: OverlayWindow?
+    public let window: UIWindow?
     private let layer: UIHostingController<AnyView?>?
     private let previousKeyWindow: UIWindow?
 
