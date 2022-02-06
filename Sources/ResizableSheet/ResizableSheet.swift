@@ -199,40 +199,38 @@ struct ResizableSheet_Preview: PreviewProvider {
                         Spacer()
                     }
                     .resizableSheet($state) { builder in
-                        builder.content { context in
-//                            Text("Hoge")
-//                                .frame(height: 400)
-                            ResizableScrollView(
-                                additionalViewHeightForMedium: 0,
-                                context: context,
-                                main: {
-                                    ForEach(0..<03) { index in
-                                        HStack {
-                                            Text("\(index)")
-                                            Spacer()
+                        builder
+                            .content { context in
+                                ResizableScrollView(
+                                    additionalViewHeightForMedium: 0,
+                                    context: context,
+                                    main: {
+                                        VStack(alignment: .leading) {
+                                            ForEach(0..<8) { index in
+                                                Text("\(index)")
+                                                    .padding()
+                                            }
                                         }
-                                        .padding()
-                                    }
-                                },
-                                additional: {
-                                    ForEach(13..<15) { index in
-                                        HStack {
-                                            Text("\(index)")
-                                            Spacer()
-                                        }
+                                    },
+                                    additional: {
+                                        ForEach(13..<30) { index in
+                                            HStack {
+                                                Text("\(index)")
+                                                Spacer()
+                                            }
                                             .padding()
+                                        }
                                     }
-                                }
-                            )
-                                .overlay(VStack{
-                                    GrabBar()
-                                    Spacer()
-                                })
-                        }
+                                )
+                                    .overlay(VStack{
+                                        GrabBar()
+                                        Spacer()
+                                    })
+                            }
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle("Hoge")
+                .navigationTitle("Hoge")
             }
         }
     }
