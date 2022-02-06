@@ -47,7 +47,7 @@ public struct ResizableSheetConfiguration {
 
     var nextStateHandler: ((ResizableSheetContext) -> ResizableSheetState)?
 
-    var animation: Animation = .easeOut
+    var animation: Animation = .spring(response: 0.4, dampingFraction: 0.9, blendDuration: 0.8)
 
     public init() {}
 
