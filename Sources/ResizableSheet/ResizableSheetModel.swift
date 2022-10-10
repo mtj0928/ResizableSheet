@@ -13,7 +13,7 @@ public class ResizableSheetModel: ObservableObject {
 
     public internal(set) var updateState: (ResizableSheetState) -> () = { _ in }
 
-    private static let dispatchQue = DispatchQueue(label: "ResizableSheet")
+    private static let dispatchQueue = DispatchQueue(label: "ResizableSheet")
 
     public init(state: ResizableSheetState) {
         self.state = state
@@ -44,7 +44,7 @@ public class ResizableSheetModel: ObservableObject {
     }
 
     public func finish(diff: CGFloat) {
-        Self.dispatchQue.async { [weak self] in
+        Self.dispatchQueue.async { [weak self] in
             Thread.sleep(forTimeInterval: 0.01)
             DispatchQueue.main.async {
                 guard let self = self else { return }
@@ -120,6 +120,8 @@ public class ResizableSheetModel: ObservableObject {
     }
 
     public func commit() {
-        objectWillChange.send()
+        DispatchQueue.main.async { [weak self] in
+            self?.objectWillChange.send()
+        }
     }
 }
